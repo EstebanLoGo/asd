@@ -1,0 +1,190 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace vigenere2._0
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Tableau de char représentant l'alphabet utilisé pour le cryptage et le décryptage
+            char[] tabCharAlphabet = new char[] { 'Â', 'Ê', 'Î', 'Ô', 'Û', 'Ä', 'Ë', 'Ï', 'Ö', 'Ü', 'À', 'Æ', 'Ç', 'É', 'È', 'Œ', 'œ', 'Ù', 'â', 'ê', 'î', 'ô', 'û', 'ä', 'ë', 'ï', 'ö', 'ü', 'à', 'ç', 'é', 'è', 'ù','K', 'U', 'M', 'D', 'R', 'Q', 'A', 'O', 'L' ,'W', 'P', 'N', 'Z', 'C', 'Y', 'B', 'F' ,'E', 'T', 'I', 'S', 'H', 'V', 'X', 'G', 'J','a','b' ,'c', 'd','e' ,'f' ,'g' ,'h',' ','i' ,'j','k' ,'l' ,'m' ,'n' , 'o','p' ,'q' ,'r' ,'s' ,'t' ,'u','v','w','x' ,'y' ,'z' ,'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',',','.','!', '?', '\'', '(', ')' , '"', ':','’', '-' ,'«','»', ';'};
+
+            
+            string strMessageClair = "L'univers de Star Wars met en scène de nombreuses planètes. Certaines reviennent dans la plupart des films comme Tatooine, planète désertique où grandissent Anakin et Luke Skywalker22, ou encore Coruscant, œcumenopole, centre physique et politique de la galaxie. Un grand nombre de planètes s'inspirent d'un type de paysage particulier comme Mustafar qui offre un paysage volcanique de désolation ou Hoth, planète balayée par des tempêtes de neige. Au contraire, des planètes ressemblent fortement à la Terre, à l'image de Naboo ou Alderaan23. Par ailleurs, si des planètes ou des lunes volcaniques telles que Mustafar, ou recouvertes de forêt comme Endor, n'ont jamais été découvertes, certaines originalités imaginées dans la saga sont scientifiquement avérées. Ainsi, le double coucher de soleil sur Tatooine est possible, dans la mesure où il existe effectivement des systèmes planétaires qui gravitent autour de deux étoiles. Le surnom de « Tatooine » a même été donné à la planète HD 188753 Ab en raison de son système à trois étoiles24. D'autres planètes, telles que Corellia ou Kessel, sont simplement citées dans les films par des personnages voyageurs, donnant l'impression d'un monde plus étendu que celui qui est montré dans les films25. Elles ont ensuite été détaillées dans les romans, les bandes dessinées et les jeux vidéo de l'univers étendu. Ainsi, Corellia est le théâtre de certains événements des romans de La Trilogie Corellienne de Roger MacBride Allen ou encore de la Trilogie de Han Solo26.";
+            string strCle = "Ljf984Fr!'??2-à ue Rzsn782";
+            string strMessageCrypte;
+
+
+
+            int[] tabIntDecalageCle = new int[strCle.Length];
+            bool[] tabBoolEspaces = new bool[strMessageClair.Length];
+
+
+
+            strCle = strCle.Replace(" ", string.Empty);
+
+
+
+
+            for (int i = 0; i < strCle.Length; i++)
+            {
+                for (int j = 0; j < tabCharAlphabet.Length; j++)
+                {
+                    if (strCle[i] == tabCharAlphabet[j])
+                        break;
+
+                    else
+                        tabIntDecalageCle[i]++;
+                }
+            }
+
+            for(int i = 0; i<strMessageClair.Length; i++)
+            {
+                if (strMessageClair[i] == ' ')
+                    tabBoolEspaces[i] = true;
+                else
+                    tabBoolEspaces[i] = false;
+            }
+
+
+            strMessageClair = strMessageClair.Replace(" ", string.Empty);
+
+            int[] tabIntPositionMsgClair = new int[strMessageClair.Length];
+
+
+            for (int i = 0; i<strMessageClair.Length; i++)
+            {
+                for (int j = 0; j < tabCharAlphabet.Length; j++)
+                {
+                    if (strMessageClair[i] == tabCharAlphabet[j])
+                        break;
+
+                    else
+                        tabIntPositionMsgClair[i]++;
+                }
+            }
+
+
+            strMessageCrypte = cryptage(strMessageClair, tabCharAlphabet, tabIntDecalageCle, tabIntPositionMsgClair);
+            strMessageClair = decryptage(strMessageCrypte, tabCharAlphabet, tabIntDecalageCle, tabBoolEspaces);
+
+            strMessageClair = ajoutEspaces(strMessageClair, tabBoolEspaces);
+
+            Console.WriteLine(strMessageCrypte);
+            Console.Write("\n" + strMessageClair);
+
+
+            Console.ReadKey();
+        }
+
+
+        static string cryptage(string message, char[] alphabet, int[] decalageCle, int[] positionClair)
+        {
+            int intSommeDecalage;
+            int intIndexCle = 0;
+            StringBuilder sb = new StringBuilder();
+
+
+            for(int i = 0; i<message.Length; i++)
+            {
+                if (intIndexCle > decalageCle.Length-1)
+                    intIndexCle = 0;
+
+                intSommeDecalage = decalageCle[intIndexCle] + positionClair[i];
+
+                if(intSommeDecalage >= alphabet.Length)
+                    intSommeDecalage -= alphabet.Length;
+
+                sb.Append(alphabet[intSommeDecalage]);
+                intIndexCle++;
+                
+            }
+
+
+            return sb.ToString();
+        }
+
+
+        static string decryptage(string messageCrypte, char[] alphabet, int[] decalageCle, bool[] espaces)
+        {
+
+            int intSommeDecalage;
+            int intIndexCle = 0;
+            int[] tabIntPositionCrypte = new int[messageCrypte.Length];
+            int intCompteurEspaces = 0;
+            int intCompteurE = 0;
+            StringBuilder sb = new StringBuilder();
+            char[] tabCharAlphabet = new char[] { 'Â', 'Ê', 'Î', 'Ô', 'Û', 'Ä', 'Ë', 'Ï', 'Ö', 'Ü', 'À', 'Æ', 'Ç', 'É', 'È', 'Œ', 'œ', 'Ù', 'â', 'ê', 'î', 'ô', 'û', 'ä', 'ë', 'ï', 'ö', 'ü', 'à', 'ç', 'é', 'è', 'ù', 'K', 'U', 'M', 'D', 'R', 'Q', 'A', 'O', 'L', 'W', 'P', 'N', 'Z', 'C', 'Y', 'B', 'F', 'E', 'T', 'I', 'S', 'H', 'V', 'X', 'G', 'J', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', ' ', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '.', '!', '?', '\'', '(', ')', '"', ':', '’', '-', '«', '»', ';' };
+
+
+            for (int i = 0; i < messageCrypte.Length; i++)
+            {
+                for (int j = 0; j < alphabet.Length; j++)
+                {
+                    if (messageCrypte[i] == alphabet[j])
+                        break;
+
+                    else
+                        tabIntPositionCrypte[i]++;
+                }
+            }
+
+            for (int i = 0; i < tabIntPositionCrypte.Length; i++)
+            {
+                if (intIndexCle > decalageCle.Length - 1)
+                    intIndexCle = 0;
+
+                intSommeDecalage = tabIntPositionCrypte[i]-decalageCle[intIndexCle];
+
+                if (intSommeDecalage < 0)
+                {
+                    intSommeDecalage = Math.Abs(intSommeDecalage);
+                    intSommeDecalage = alphabet.Length - intSommeDecalage;
+                }
+
+
+                sb.Append(alphabet[intSommeDecalage]);
+                intCompteurEspaces++;
+                intIndexCle++;
+                intCompteurE++;
+
+            }
+
+
+            return sb.ToString();
+
+        }
+
+
+
+        static string ajoutEspaces (string message, bool[] positionEspace)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            int intCompteurLettreAjoutee = 0;
+
+
+            for (int i = 0; i < message.Length; i++)
+            {
+                if (positionEspace[i+intCompteurLettreAjoutee] == true)
+                {
+                    sb.Append(' ');
+                    intCompteurLettreAjoutee++;
+                }
+
+                sb.Append(message[i]);
+            }
+
+
+
+            return sb.ToString();
+        }
+
+
+
+    }
+}
